@@ -314,58 +314,48 @@ end)
 
 entity:SetCallback("OnDamagePlayer", function(newHealth)
 
-    print("Ripper damaged player:", newHealth)
-
     task.spawn(function()
 
         local player = Players.LocalPlayer
 
         local character =
-            player.Character
-            or player.CharacterAdded:Wait()
+            player.Character or player.CharacterAdded:Wait()
 
         local humanoid =
-            character:WaitForChild(
-                "Humanoid",
-                5
-            )
+            character:WaitForChild("Humanoid", 5)
 
         local humanoidRootPart =
-            character:WaitForChild(
-                "HumanoidRootPart",
-                5
-            )
+            character:WaitForChild("HumanoidRootPart", 5)
 
         if not humanoid or not humanoidRootPart then
-            warn("Humanoid or HumanoidRootPart wasn't found.")
+            warn("Ripper: Humanoid not found")
             return
         end
 
-        local camera =
-            workspace.CurrentCamera
+        local camera = workspace.CurrentCamera
 
         --==================================================
-        -- FIND RIPPER
+        -- WAIT FOR THE ACTUAL RIPPER MODEL
         --==================================================
 
         local entityModel =
-            workspace:FindFirstChild("Ripper")
+            workspace:WaitForChild("Ripper", 10)
 
         if not entityModel then
-            warn("Ripper model wasn't found in Workspace.")
+            warn("Ripper model was not found!")
             return
         end
+
+        print("Ripper jumpscare started!")
 
         --==================================================
         -- FREEZE PARTICLES
         --==================================================
 
-        for _, descendant in ipairs(
-            entityModel:GetDescendants()
-        ) do
+        for _, obj in ipairs(entityModel:GetDescendants()) do
 
-            if descendant:IsA("ParticleEmitter") then
-                descendant.TimeScale = 0
+            if obj:IsA("ParticleEmitter") then
+                obj.TimeScale = 0
             end
 
         end
@@ -375,17 +365,12 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
         --==================================================
 
         local primaryPart =
-            entityModel:FindFirstChild(
-                "Ripe",
-                true
-            )
+            entityModel:FindFirstChild("Ripe", true)
 
         if not primaryPart
             or not primaryPart:IsA("BasePart") then
 
-            warn(
-                "Ripe BasePart wasn't found inside Ripper."
-            )
+            warn("Ripper: Ripe BasePart not found!")
 
             return
         end
@@ -395,28 +380,26 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
         --==================================================
 
         local ripeAttachment =
-            primaryPart:FindFirstChild(
-                "ripe",
-                true
-            )
+            primaryPart:FindFirstChild("ripe", true)
 
         if ripeAttachment then
 
-            for _, child in ipairs(
+            for _, obj in ipairs(
                 ripeAttachment:GetDescendants()
             ) do
 
-                if child:IsA("ParticleEmitter") then
+                if obj:IsA("ParticleEmitter") then
 
-                    child.Texture =
+                    obj.Texture =
                         "rbxassetid://11816152645"
 
-                    child.Squash =
+                    obj.Squash =
                         NumberSequence.new(0.4)
 
                 end
 
             end
+
         end
 
         entityModel.PrimaryPart =
@@ -434,87 +417,60 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
         local camConnection
 
         camConnection =
-            RunService.RenderStepped:Connect(
-                function()
+            RunService.RenderStepped:Connect(function()
 
-                    if primaryPart
-                        and primaryPart.Parent then
+                if primaryPart
+                    and primaryPart.Parent then
 
-                        camera.CFrame = CFrame.lookAt(
-                            camera.CFrame.Position,
-                            primaryPart.Position
-                        )
+                    camera.CFrame = CFrame.lookAt(
+                        camera.CFrame.Position,
+                        primaryPart.Position
+                    )
 
-                    else
+                else
 
-                        if camConnection then
-                            camConnection:Disconnect()
-                            camConnection = nil
-                        end
-
-                        camera.CameraType =
-                            Enum.CameraType.Custom
-
+                    if camConnection then
+                        camConnection:Disconnect()
+                        camConnection = nil
                     end
+
+                    camera.CameraType =
+                        Enum.CameraType.Custom
+
                 end
+
+            end)
+
+        --==================================================
+        -- MOVE RIPPER TOWARD PLAYER
+        --==================================================
+
+        local tween =
+            TweenService:Create(
+                primaryPart,
+
+                TweenInfo.new(
+                    3,
+                    Enum.EasingStyle.Linear
+                ),
+
+                {
+                    CFrame =
+                        humanoidRootPart.CFrame
+                }
             )
-
-        --==================================================
-        -- MOVE RIPPER
-        --==================================================
-
-        local tween = TweenService:Create(
-            primaryPart,
-
-            TweenInfo.new(
-                99999999999999,
-                Enum.EasingStyle.Linear
-            ),
-
-            {
-                CFrame =
-                    humanoidRootPart.CFrame
-            }
-        )
 
         tween:Play()
 
         --==================================================
-        -- LOCK PLAYER
+        -- FREEZE PLAYER
         --==================================================
 
-        local anchorPart =
-            Instance.new("Part")
+        local oldWalkSpeed =
+            humanoid.WalkSpeed
 
-        anchorPart.Name =
-            "JumpscareAnchor"
-
-        anchorPart.Size =
-            Vector3.new(1, 1, 1)
-
-        anchorPart.Transparency = 1
-        anchorPart.Anchored = true
-        anchorPart.CanCollide = false
-        anchorPart.CanTouch = false
-        anchorPart.CanQuery = false
-
-        anchorPart.Position =
-            humanoidRootPart.Position
-
-        anchorPart.Parent =
-            workspace
-
-        local weld =
-            Instance.new("WeldConstraint")
-
-        weld.Part0 =
-            humanoidRootPart
-
-        weld.Part1 =
-            anchorPart
-
-        weld.Parent =
-            humanoidRootPart
+        local oldJumpPower =
+            humanoid.JumpPower
 
         humanoid.WalkSpeed = 0
         humanoid.JumpPower = 0
@@ -532,15 +488,25 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
         )
 
         --==================================================
+        -- WAIT BEFORE JUMPSCARE
+        --==================================================
+
+        task.wait(1.5)
+
+        --==================================================
         -- JUMPSCARE IMAGE
         --==================================================
 
-        task.wait(2)
-
         local playerGui =
-            player:WaitForChild(
-                "PlayerGui"
-            )
+            player:WaitForChild("PlayerGui")
+
+        -- Remove old jumpscare if one exists
+        local oldGui =
+            playerGui:FindFirstChild("JumpscareOverlay")
+
+        if oldGui then
+            oldGui:Destroy()
+        end
 
         local screenGui =
             Instance.new("ScreenGui")
@@ -548,14 +514,14 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
         screenGui.Name =
             "JumpscareOverlay"
 
-        screenGui.ZIndexBehavior =
-            Enum.ZIndexBehavior.Sibling
-
         screenGui.ResetOnSpawn =
             false
 
         screenGui.IgnoreGuiInset =
             true
+
+        screenGui.ZIndexBehavior =
+            Enum.ZIndexBehavior.Sibling
 
         screenGui.DisplayOrder =
             999999
@@ -569,8 +535,11 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
         imageLabel.Name =
             "JumpscareImage"
 
-        imageLabel.BackgroundTransparency = 1
-        imageLabel.BorderSizePixel = 0
+        imageLabel.BackgroundTransparency =
+            1
+
+        imageLabel.BorderSizePixel =
+            0
 
         imageLabel.Position =
             UDim2.new(0, 0, 0, 0)
@@ -581,16 +550,16 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
         imageLabel.ScaleType =
             Enum.ScaleType.Stretch
 
-        imageLabel.Visible = true
-        imageLabel.ZIndex = 999999
+        imageLabel.ZIndex =
+            999999
+
+        imageLabel.Visible =
+            true
 
         imageLabel.Parent =
             screenGui
 
-        --==================================================
-        -- JUMPSCARE IMAGES
-        --==================================================
-
+        -- YOUR ORIGINAL IMAGES
         local jumpscareImage1 =
             "rbxassetid://94547864377343"
 
@@ -600,12 +569,15 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
         local flashDuration =
             1.2
 
-        local flashStartTime =
+        local startTime =
             tick()
 
+        --==================================================
+        -- FLASH IMAGES
+        --==================================================
+
         while
-            tick() - flashStartTime
-            < flashDuration
+            tick() - startTime < flashDuration
         do
 
             imageLabel.Image =
@@ -614,8 +586,7 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
             task.wait(0.05)
 
             if
-                tick() - flashStartTime
-                >= flashDuration
+                tick() - startTime >= flashDuration
             then
                 break
             end
@@ -627,14 +598,18 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
 
         end
 
+        --==================================================
+        -- HIDE IMAGE
+        --==================================================
+
         imageLabel.Visible =
             false
 
-        --==================================================
-        -- KILL PLAYER
-        --==================================================
-
         task.wait(0.5)
+
+        --==================================================
+        -- KILL
+        --==================================================
 
         if humanoid and humanoid.Parent then
 
@@ -644,8 +619,19 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
             humanoid.AutoRotate =
                 true
 
-            humanoid.Health =
-                0
+            humanoid.WalkSpeed =
+                oldWalkSpeed
+
+            humanoid.JumpPower =
+                oldJumpPower
+
+            -- Actually kill the humanoid
+            humanoid:TakeDamage(
+                humanoid.MaxHealth + 100
+            )
+
+            -- Backup
+            humanoid.Health = 0
 
             humanoid:ChangeState(
                 Enum.HumanoidStateType.Dead
@@ -669,23 +655,22 @@ entity:SetCallback("OnDamagePlayer", function(newHealth)
             tween:Cancel()
         end
 
-        if weld and weld.Parent then
-            weld:Destroy()
-        end
+        if screenGui
+            and screenGui.Parent then
 
-        if anchorPart and anchorPart.Parent then
-            anchorPart:Destroy()
-        end
-
-        if screenGui and screenGui.Parent then
             screenGui:Destroy()
+
         end
 
-        if entityModel and entityModel.Parent then
+        if entityModel
+            and entityModel.Parent then
+
             entityModel:Destroy()
+
         end
 
     end)
+
 end)
 
 --==================================================
