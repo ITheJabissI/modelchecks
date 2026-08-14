@@ -95,24 +95,15 @@ if currentRoom then
 
         if v:IsA("Light") then
 
-            TweenService:Create(
-                v,
-                tweenInfo,
-                {
-                    Color = Color3.new(1, 0, 0)
-                }
-            ):Play()
+            TweenService:Create(v, tweenInfo, {
+                Color = Color3.new(1, 0, 0)
+            }):Play()
 
-        elseif v.Parent
-            and v.Parent.Name == "LightFixture" then
+        elseif v.Parent and v.Parent.Name == "LightFixture" then
 
-            TweenService:Create(
-                v.Parent,
-                tweenInfo,
-                {
-                    Color = Color3.new(1, 0, 0)
-                }
-            ):Play()
+            TweenService:Create(v.Parent, tweenInfo, {
+                Color = Color3.new(1, 0, 0)
+            }):Play()
 
         end
     end
@@ -131,8 +122,7 @@ local camera = workspace.CurrentCamera
 local camShake = CameraShaker.new(
     Enum.RenderPriority.Camera.Value,
     function(shakeCf)
-        camera.CFrame =
-            camera.CFrame * shakeCf
+        camera.CFrame = camera.CFrame * shakeCf
     end
 )
 
@@ -180,8 +170,7 @@ TweenService:Create(
 
 local function GetGitSound(url, filename, volume)
 
-    local file =
-        filename .. ".mp3"
+    local file = filename .. ".mp3"
 
     if not isfile(file) then
 
@@ -191,26 +180,18 @@ local function GetGitSound(url, filename, volume)
             end)
 
         if not success then
-            warn(
-                "Couldn't download sound:",
-                content
-            )
+            warn("Couldn't download sound:", content)
             return nil
         end
 
-        writefile(
-            file,
-            content
-        )
+        writefile(file, content)
     end
 
     local assetFunction =
         getcustomasset or getsynasset
 
     if not assetFunction then
-        warn(
-            "getcustomasset/getsynasset is unavailable."
-        )
+        warn("getcustomasset/getsynasset is unavailable.")
         return nil
     end
 
@@ -244,634 +225,569 @@ GetGitSound(
 -- DESPAWNING
 --==================================================
 
-entity:SetCallback(
-    "OnDespawning",
-    function()
+entity:SetCallback("OnDespawning", function()
 
-        camShake:Start()
+    camShake:Start()
 
-        camShake:ShakeOnce(
-            10,
-            15,
-            0,
-            5.5,
-            1,
-            0
-        )
+    camShake:ShakeOnce(
+        10,
+        15,
+        0,
+        5.5,
+        1,
+        0
+    )
 
-        camShake:Shake(
-            CameraShaker.Presets.Earthquake
-        )
+    camShake:Shake(
+        CameraShaker.Presets.Earthquake
+    )
 
-        pcall(function()
+    pcall(function()
+        currentRoom.Door.ClientOpen:FireServer()
+    end)
 
-            currentRoom.Door.ClientOpen:FireServer()
+    -- The spawned model is Ripper
+    local ripper =
+        workspace:FindFirstChild("Ripper")
 
-        end)
+    if ripper then
 
-        -- IMPORTANT:
-        -- The spawned model is Ripper
-        local ripper =
-            workspace:FindFirstChild("Ripper")
+        for _, v in ipairs(
+            ripper:GetDescendants()
+        ) do
 
-        if ripper then
-
-            for _, v in ipairs(
-                ripper:GetDescendants()
-            ) do
-
-                if v:IsA("Sound") then
-
-                    v:Stop()
-                    v:Destroy()
-
-                end
+            if v:IsA("Sound") then
+                v:Stop()
+                v:Destroy()
             end
+
         end
-
-        TweenService:Create(
-            colorEffect,
-            TweenInfo.new(10),
-            {
-                TintColor =
-                    Color3.fromRGB(
-                        255,
-                        255,
-                        255
-                    ),
-
-                Saturation = 0,
-                Contrast = 0
-            }
-        ):Play()
-
-        Debris:AddItem(
-            colorEffect,
-            10
-        )
-
-        local doorSound =
-            Instance.new("Sound")
-
-        doorSound.SoundId =
-            "rbxassetid://1837829565"
-
-        doorSound.Volume =
-            6
-
-        doorSound.Name =
-            "DoorBreaker"
-
-        doorSound.Parent =
-            workspace
-
-        doorSound:Play()
-
-        Debris:AddItem(
-            doorSound,
-            10
-        )
-
-        camShake:Start()
-
-        camShake:ShakeOnce(
-            20,
-            5,
-            5,
-            3,
-            2,
-            1
-        )
-
-        pcall(function()
-
-            local achievementGiver =
-                loadstring(
-                    game:HttpGet(
-                        "https://raw.githubusercontent.com/Idk-lol2/a-60aa/refs/heads/main/fix%20bage.txt"
-                    )
-                )()
-
-            achievementGiver({
-
-                Title =
-                    "Torn Apart",
-
-                Desc =
-                    "Don't Leave Too Early.",
-
-                Reason =
-                    "Encounter Ripper",
-
-                Image =
-                    "rbxassetid://"
-
-            })
-
-        end)
     end
-)
+
+    TweenService:Create(
+        colorEffect,
+        TweenInfo.new(10),
+        {
+            TintColor =
+                Color3.fromRGB(255, 255, 255),
+
+            Saturation = 0,
+            Contrast = 0
+        }
+    ):Play()
+
+    Debris:AddItem(
+        colorEffect,
+        10
+    )
+
+    local doorSound =
+        Instance.new("Sound")
+
+    doorSound.SoundId =
+        "rbxassetid://1837829565"
+
+    doorSound.Volume =
+        6
+
+    doorSound.Name =
+        "DoorBreaker"
+
+    doorSound.Parent =
+        workspace
+
+    doorSound:Play()
+
+    Debris:AddItem(
+        doorSound,
+        10
+    )
+
+    camShake:Start()
+
+    camShake:ShakeOnce(
+        20,
+        5,
+        5,
+        3,
+        2,
+        1
+    )
+
+    pcall(function()
+
+        local achievementGiver =
+            loadstring(
+                game:HttpGet(
+                    "https://raw.githubusercontent.com/Idk-lol2/a-60aa/refs/heads/main/fix%20bage.txt"
+                )
+            )()
+
+        achievementGiver({
+            Title = "Torn Apart",
+            Desc = "Don't Leave Too Early.",
+            Reason = "Encounter Ripper",
+            Image = "rbxassetid://"
+        })
+
+    end)
+end)
 
 --==================================================
 -- JUMPSCARE / DAMAGE CALLBACK
 --==================================================
 
-entity:SetCallback(
-    "OnDamagePlayer",
-    function(newHealth)
+entity:SetCallback("OnDamagePlayer", function(newHealth)
 
-        print(
-            "Ripper damage callback:",
-            newHealth
+    print(
+        "Ripper damage callback:",
+        newHealth
+    )
+
+    task.spawn(function()
+
+        local player =
+            Players.LocalPlayer
+
+        local character =
+            player.Character
+            or player.CharacterAdded:Wait()
+
+        local humanoid =
+            character:WaitForChild(
+                "Humanoid",
+                5
+            )
+
+        local humanoidRootPart =
+            character:WaitForChild(
+                "HumanoidRootPart",
+                5
+            )
+
+        local camera =
+            workspace.CurrentCamera
+
+        if not humanoid
+            or not humanoidRootPart then
+
+            warn(
+                "Humanoid or HumanoidRootPart wasn't found."
+            )
+
+            return
+        end
+
+        --==================================================
+        -- FIND RIPPER
+        --==================================================
+
+        local entityModel =
+            workspace:FindFirstChild("Ripper")
+
+        if not entityModel then
+
+            warn(
+                "Ripper model wasn't found."
+            )
+
+            return
+        end
+
+        --==================================================
+        -- FREEZE PARTICLES
+        --==================================================
+
+        local function SetAllParticlesTimeScale(
+            model,
+            timescale
         )
 
-        task.spawn(function()
+            for _, descendant in ipairs(
+                model:GetDescendants()
+            ) do
 
-            local player =
-                Players.LocalPlayer
-
-            local character =
-                player.Character
-                or player.CharacterAdded:Wait()
-
-            local humanoid =
-                character:WaitForChild(
-                    "Humanoid",
-                    5
-                )
-
-            local humanoidRootPart =
-                character:WaitForChild(
-                    "HumanoidRootPart",
-                    5
-                )
-
-            local camera =
-                workspace.CurrentCamera
-
-            if not humanoid
-                or not humanoidRootPart then
-
-                warn(
-                    "Humanoid or HumanoidRootPart wasn't found."
-                )
-
-                return
-            end
-
-            --==================================================
-            -- FIND RIPPER
-            --==================================================
-
-            -- IMPORTANT:
-            -- Do NOT change the Entity.Name above.
-            -- The actual spawned Workspace model is Ripper.
-            local entityModel =
-                workspace:FindFirstChild("Ripper")
-
-            if not entityModel then
-
-                warn(
-                    "Ripper model wasn't found."
-                )
-
-                return
-            end
-
-            --==================================================
-            -- PARTICLE TIMESCALE
-            --==================================================
-
-            local function SetAllParticlesTimeScale(
-                model,
-                timescale
-            )
-
-                for _, descendant in ipairs(
-                    model:GetDescendants()
-                ) do
-
-                    if descendant:IsA(
-                        "ParticleEmitter"
-                    ) then
-
-                        descendant.TimeScale =
-                            timescale
-
-                    end
-                end
-            end
-
-            SetAllParticlesTimeScale(
-                entityModel,
-                0
-            )
-
-            --==================================================
-            -- FIND RIPE
-            --==================================================
-
-            local primaryPart =
-                entityModel:FindFirstChild(
-                    "Ripe",
-                    true
-                )
-
-            if not primaryPart
-                or not primaryPart:IsA(
-                    "BasePart"
+                if descendant:IsA(
+                    "ParticleEmitter"
                 ) then
 
-                warn(
-                    "Ripe BasePart wasn't found inside Ripper."
-                )
+                    descendant.TimeScale =
+                        timescale
 
-                return
+                end
             end
+        end
 
-            --==================================================
-            -- RIPE PARTICLES
-            --==================================================
+        SetAllParticlesTimeScale(
+            entityModel,
+            0
+        )
 
-            local ripeAttachment =
-                primaryPart:FindFirstChild(
-                    "ripe",
-                    true
-                )
+        --==================================================
+        -- FIND RIPE
+        --==================================================
 
-            if ripeAttachment then
+        local primaryPart =
+            entityModel:FindFirstChild(
+                "Ripe",
+                true
+            )
 
-                for _, child in ipairs(
-                    ripeAttachment:GetDescendants()
-                ) do
+        if not primaryPart
+            or not primaryPart:IsA(
+                "BasePart"
+            ) then
 
-                    if child:IsA(
-                        "ParticleEmitter"
-                    ) then
+            warn(
+                "Ripe BasePart wasn't found inside Ripper."
+            )
 
-                        child.Texture =
-                            "rbxassetid://11816152645"
+            return
+        end
 
-                        child.Squash =
-                            NumberSequence.new(
-                                0.4
+        --==================================================
+        -- RIPE PARTICLES
+        --==================================================
+
+        local ripeAttachment =
+            primaryPart:FindFirstChild(
+                "ripe",
+                true
+            )
+
+        if ripeAttachment then
+
+            for _, child in ipairs(
+                ripeAttachment:GetDescendants()
+            ) do
+
+                if child:IsA(
+                    "ParticleEmitter"
+                ) then
+
+                    child.Texture =
+                        "rbxassetid://11816152645"
+
+                    child.Squash =
+                        NumberSequence.new(0.4)
+
+                end
+            end
+        end
+
+        entityModel.PrimaryPart =
+            primaryPart
+
+        primaryPart.Anchored =
+            true
+
+        --==================================================
+        -- CAMERA
+        --==================================================
+
+        camera.CameraType =
+            Enum.CameraType.Scriptable
+
+        local camConnection
+
+        camConnection =
+            RunService.RenderStepped:Connect(
+                function()
+
+                    if primaryPart
+                        and primaryPart.Parent then
+
+                        camera.CFrame =
+                            CFrame.lookAt(
+                                camera.CFrame.Position,
+                                primaryPart.Position
                             )
 
+                    else
+
+                        if camConnection then
+                            camConnection:Disconnect()
+                        end
+
+                        camera.CameraType =
+                            Enum.CameraType.Custom
+
                     end
                 end
-            end
-
-            entityModel.PrimaryPart =
-                primaryPart
-
-            primaryPart.Anchored =
-                true
-
-            --==================================================
-            -- CAMERA
-            --==================================================
-
-            camera.CameraType =
-                Enum.CameraType.Scriptable
-
-            local camConnection
-
-            camConnection =
-                RunService.RenderStepped:Connect(
-                    function()
-
-                        if primaryPart
-                            and primaryPart.Parent then
-
-                            camera.CFrame =
-                                CFrame.lookAt(
-                                    camera.CFrame.Position,
-                                    primaryPart.Position
-                                )
-
-                        else
-
-                            if camConnection then
-                                camConnection:Disconnect()
-                            end
-
-                            camera.CameraType =
-                                Enum.CameraType.Custom
-
-                        end
-                    end
-                )
-
-            --==================================================
-            -- MOVE RIPPER
-            --==================================================
-
-            local tween =
-                TweenService:Create(
-
-                    primaryPart,
-
-                    TweenInfo.new(
-                        99999999999999,
-                        Enum.EasingStyle.Linear
-                    ),
-
-                    {
-                        CFrame =
-                            humanoidRootPart.CFrame
-                    }
-                )
-
-            tween:Play()
-
-            --==================================================
-            -- LOCK PLAYER
-            --==================================================
-
-            local anchorPart =
-                Instance.new("Part")
-
-            anchorPart.Name =
-                "JumpscareAnchor"
-
-            anchorPart.Size =
-                Vector3.new(
-                    1,
-                    1,
-                    1
-                )
-
-            anchorPart.Transparency =
-                1
-
-            anchorPart.Anchored =
-                true
-
-            anchorPart.CanCollide =
-                false
-
-            anchorPart.CanTouch =
-                false
-
-            anchorPart.CanQuery =
-                false
-
-            anchorPart.Position =
-                humanoidRootPart.Position
-
-            anchorPart.Parent =
-                workspace
-
-            local weld =
-                Instance.new(
-                    "WeldConstraint"
-                )
-
-            weld.Part0 =
-                humanoidRootPart
-
-            weld.Part1 =
-                anchorPart
-
-            weld.Parent =
-                humanoidRootPart
-
-            humanoid.WalkSpeed =
-                0
-
-            humanoid.JumpPower =
-                0
-
-            humanoid.AutoRotate =
-                false
-
-            humanoid.PlatformStand =
-                true
-
-            --==================================================
-            -- KILL SOUND
-            --==================================================
-
-            GetGitSound(
-                "https://github.com/eoyoustme/rebouna/blob/main/Kill_with_static.mp3?raw=true",
-                "RipperKill",
-                13
             )
 
-            --==================================================
-            -- FACE
-            --==================================================
+        --==================================================
+        -- MOVE RIPPER
+        --==================================================
 
-            task.wait(1.5)
+        local tween =
+            TweenService:Create(
 
-            local faceDecal =
-                entityModel:FindFirstChild(
-                    "FaceDecal",
-                    true
-                )
+                primaryPart,
 
-            if faceDecal
-                and faceDecal:IsA(
-                    "Decal"
-                ) then
+                TweenInfo.new(
+                    99999999999999,
+                    Enum.EasingStyle.Linear
+                ),
 
-                faceDecal.Texture =
-                    "rbxassetid://1234567890"
+                {
+                    CFrame =
+                        humanoidRootPart.CFrame
+                }
+            )
 
+        tween:Play()
+
+        --==================================================
+        -- LOCK PLAYER
+        --==================================================
+
+        local anchorPart =
+            Instance.new("Part")
+
+        anchorPart.Name =
+            "JumpscareAnchor"
+
+        anchorPart.Size =
+            Vector3.new(1, 1, 1)
+
+        anchorPart.Transparency =
+            1
+
+        anchorPart.Anchored =
+            true
+
+        anchorPart.CanCollide =
+            false
+
+        anchorPart.CanTouch =
+            false
+
+        anchorPart.CanQuery =
+            false
+
+        anchorPart.Position =
+            humanoidRootPart.Position
+
+        anchorPart.Parent =
+            workspace
+
+        local weld =
+            Instance.new(
+                "WeldConstraint"
+            )
+
+        weld.Part0 =
+            humanoidRootPart
+
+        weld.Part1 =
+            anchorPart
+
+        weld.Parent =
+            humanoidRootPart
+
+        humanoid.WalkSpeed =
+            0
+
+        humanoid.JumpPower =
+            0
+
+        humanoid.AutoRotate =
+            false
+
+        humanoid.PlatformStand =
+            true
+
+        --==================================================
+        -- KILL SOUND
+        --==================================================
+
+        GetGitSound(
+            "https://github.com/eoyoustme/rebouna/blob/main/Kill_with_static.mp3?raw=true",
+            "RipperKill",
+            13
+        )
+
+        --==================================================
+        -- JUMPSCARE IMAGE
+        --==================================================
+
+        task.wait(2)
+
+        local playerGui =
+            player:WaitForChild(
+                "PlayerGui"
+            )
+
+        local screenGui =
+            Instance.new(
+                "ScreenGui"
+            )
+
+        screenGui.Name =
+            "JumpscareOverlay"
+
+        screenGui.ZIndexBehavior =
+            Enum.ZIndexBehavior.Sibling
+
+        screenGui.ResetOnSpawn =
+            false
+
+        screenGui.IgnoreGuiInset =
+            true
+
+        screenGui.DisplayOrder =
+            999999
+
+        screenGui.Parent =
+            playerGui
+
+        local imageLabel =
+            Instance.new(
+                "ImageLabel"
+            )
+
+        imageLabel.Name =
+            "JumpscareImage"
+
+        imageLabel.BackgroundTransparency =
+            1
+
+        imageLabel.BorderSizePixel =
+            0
+
+        imageLabel.Position =
+            UDim2.new(0, 0, 0, 0)
+
+        imageLabel.Size =
+            UDim2.new(1, 0, 1, 0)
+
+        imageLabel.ScaleType =
+            Enum.ScaleType.Stretch
+
+        imageLabel.Visible =
+            true
+
+        imageLabel.ZIndex =
+            999999
+
+        imageLabel.Parent =
+            screenGui
+
+        -- Your two jumpscare images
+        local jumpscareImage1 =
+            "rbxassetid://94547864377343"
+
+        local jumpscareImage2 =
+            "rbxassetid://236542974"
+
+        --==================================================
+        -- FLASH IMAGES
+        --==================================================
+
+        local flashDuration =
+            1.2
+
+        local flashStartTime =
+            tick()
+
+        while
+            tick() - flashStartTime
+            < flashDuration
+        do
+
+            imageLabel.Image =
+                jumpscareImage1
+
+            task.wait(0.05)
+
+            if
+                tick() - flashStartTime
+                >= flashDuration
+            then
+                break
             end
 
-            --==================================================
-            -- JUMPSCARE IMAGE
-            --==================================================
+            imageLabel.Image =
+                jumpscareImage2
 
-            task.wait(0.5)
+            task.wait(0.05)
 
-            local playerGui =
-                player:WaitForChild(
-                    "PlayerGui"
-                )
+        end
 
-            local screenGui =
-                Instance.new(
-                    "ScreenGui"
-                )
+        -- Hide jumpscare
+        imageLabel.Visible =
+            false
 
-            screenGui.Name =
-                "JumpscareOverlay"
+        --==================================================
+        -- DEATH
+        --==================================================
 
-            screenGui.ZIndexBehavior =
-                Enum.ZIndexBehavior.Sibling
+        task.wait(0.5)
 
-            screenGui.ResetOnSpawn =
+        if humanoid
+            and humanoid.Parent then
+
+            humanoid.PlatformStand =
                 false
 
-            screenGui.IgnoreGuiInset =
+            humanoid.AutoRotate =
                 true
 
-            screenGui.DisplayOrder =
-                999999
-
-            screenGui.Parent =
-                playerGui
-
-            local imageLabel =
-                Instance.new(
-                    "ImageLabel"
-                )
-
-            imageLabel.Name =
-                "JumpscareImage"
-
-            imageLabel.BackgroundTransparency =
-                1
-
-            imageLabel.BorderSizePixel =
+            humanoid.Health =
                 0
 
-            imageLabel.Position =
-                UDim2.new(
-                    0,
-                    0,
-                    0,
-                    0
-                )
+            humanoid:ChangeState(
+                Enum.HumanoidStateType.Dead
+            )
 
-            imageLabel.Size =
-                UDim2.new(
-                    1,
-                    0,
-                    1,
-                    0
-                )
+        end
 
-            imageLabel.ScaleType =
-                Enum.ScaleType.Stretch
+        --==================================================
+        -- CLEANUP
+        --==================================================
 
-            imageLabel.Visible =
-                true
+        if camConnection then
+            camConnection:Disconnect()
+        end
 
-            imageLabel.ZIndex =
-                999999
+        camera.CameraType =
+            Enum.CameraType.Custom
 
-            imageLabel.Parent =
-                screenGui
+        if tween then
+            tween:Cancel()
+        end
 
-            local jumpscareImage1 =
-                "rbxassetid://94547864377343"
+        if weld
+            and weld.Parent then
 
-            local jumpscareImage2 =
-                "rbxassetid://236542974"
+            weld:Destroy()
 
-            --==================================================
-            -- FLASH
-            --==================================================
+        end
 
-            local flashDuration =
-                1.2
+        if anchorPart
+            and anchorPart.Parent then
 
-            local flashStartTime =
-                tick()
+            anchorPart:Destroy()
 
-            while
-                tick() - flashStartTime
-                < flashDuration
-            do
+        end
 
-                imageLabel.Image =
-                    jumpscareImage1
+        if screenGui
+            and screenGui.Parent then
 
-                task.wait(0.05)
+            screenGui:Destroy()
 
-                if
-                    tick() - flashStartTime
-                    >= flashDuration
-                then
+        end
 
-                    break
+        if entityModel
+            and entityModel.Parent then
 
-                end
+            entityModel:Destroy()
 
-                imageLabel.Image =
-                    jumpscareImage2
+        end
 
-                task.wait(0.05)
-
-            end
-
-            -- Hide image
-            imageLabel.Visible =
-                false
-
-            --==================================================
-            -- KILL
-            --==================================================
-
-            task.wait(0.5)
-
-            if humanoid
-                and humanoid.Parent then
-
-                humanoid.PlatformStand =
-                    false
-
-                humanoid.AutoRotate =
-                    true
-
-                humanoid.Health =
-                    0
-
-                humanoid:ChangeState(
-                    Enum.HumanoidStateType.Dead
-                )
-
-            end
-
-            --==================================================
-            -- CLEANUP
-            --==================================================
-
-            if camConnection then
-                camConnection:Disconnect()
-            end
-
-            camera.CameraType =
-                Enum.CameraType.Custom
-
-            if tween then
-                tween:Cancel()
-            end
-
-            if weld
-                and weld.Parent then
-
-                weld:Destroy()
-
-            end
-
-            if anchorPart
-                and anchorPart.Parent then
-
-                anchorPart:Destroy()
-
-            end
-
-            if screenGui
-                and screenGui.Parent then
-
-                screenGui:Destroy()
-
-            end
-
-            if entityModel
-                and entityModel.Parent then
-
-                entityModel:Destroy()
-
-            end
-
-        end)
-    end
-)
+    end)
+end)
 
 --==================================================
 -- RUN ENTITY
